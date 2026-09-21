@@ -1,0 +1,764 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Spam Message Detector</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+
+            background: white;
+
+            padding: 35px;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+
+        /* HEADER */
+
+        .header {
+            text-align: center;
+
+            margin-bottom: 30px;
+        }
+
+        .icon {
+            width: 70px;
+            height: 70px;
+
+            background: #2563eb;
+
+            color: white;
+
+            border-radius: 50%;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 32px;
+
+            margin: 0 auto 15px;
+        }
+
+        .header h1 {
+            color: #0f172a;
+
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #64748b;
+
+            font-size: 15px;
+        }
+
+
+        /* TEXTAREA */
+
+        label {
+            display: block;
+
+            margin-bottom: 10px;
+
+            font-weight: bold;
+
+            color: #334155;
+        }
+
+        textarea {
+            width: 100%;
+
+            height: 160px;
+
+            padding: 15px;
+
+            resize: none;
+
+            border: 2px solid #e2e8f0;
+
+            border-radius: 12px;
+
+            outline: none;
+
+            font-size: 16px;
+
+            transition: 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+
+        /* BUTTON */
+
+        .check-btn {
+            width: 100%;
+
+            margin-top: 18px;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            background: #2563eb;
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.3s;
+        }
+
+        .check-btn:hover {
+            background: #1d4ed8;
+
+            transform: translateY(-2px);
+        }
+
+
+        /* RESULT */
+
+        .result {
+            display: none;
+
+            margin-top: 25px;
+
+            padding: 20px;
+
+            border-radius: 12px;
+
+            text-align: center;
+        }
+
+        .result h2 {
+            margin-bottom: 10px;
+        }
+
+
+        /* SPAM */
+
+        .spam {
+            display: block;
+
+            background: #fee2e2;
+
+            border: 2px solid #ef4444;
+
+            color: #b91c1c;
+        }
+
+
+        /* NOT SPAM */
+
+        .not-spam {
+            display: block;
+
+            background: #dcfce7;
+
+            border: 2px solid #22c55e;
+
+            color: #15803d;
+        }
+
+
+        /* CONFIDENCE */
+
+        .confidence {
+            margin-top: 12px;
+
+            font-size: 15px;
+        }
+
+        .bar-container {
+            width: 100%;
+
+            height: 10px;
+
+            background: #e2e8f0;
+
+            border-radius: 10px;
+
+            margin-top: 15px;
+
+            overflow: hidden;
+        }
+
+        .bar {
+            height: 100%;
+
+            width: 0%;
+
+            border-radius: 10px;
+
+            transition: width 0.8s ease;
+        }
+
+        .spam-bar {
+            background: #ef4444;
+        }
+
+        .safe-bar {
+            background: #22c55e;
+        }
+
+
+        /* EXAMPLES */
+
+        .examples {
+            margin-top: 25px;
+
+            padding-top: 20px;
+
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .examples p {
+            color: #64748b;
+
+            font-size: 14px;
+
+            margin-bottom: 8px;
+        }
+
+        .example {
+            display: inline-block;
+
+            background: #f1f5f9;
+
+            padding: 8px 12px;
+
+            border-radius: 8px;
+
+            margin: 4px;
+
+            font-size: 13px;
+
+            color: #475569;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .example:hover {
+            background: #dbeafe;
+
+            color: #1d4ed8;
+        }
+
+
+        /* MOBILE */
+
+        @media (max-width: 600px) {
+
+            .container {
+                padding: 25px 20px;
+            }
+
+            .header h1 {
+                font-size: 25px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <div class="container">
+
+
+        <!-- HEADER -->
+
+        <div class="header">
+
+            <div class="icon">
+                🛡️
+            </div>
+
+            <h1>
+                Spam Message Detector
+            </h1>
+
+            <p>
+                Enter a message to check whether it is spam or not.
+            </p>
+
+        </div>
+
+
+        <!-- MESSAGE INPUT -->
+
+        <label for="message">
+            Enter Message
+        </label>
+
+        <textarea
+            id="message"
+            placeholder="Example: Congratulations! You won ₹10,00,000. Click here to claim your prize..."
+        ></textarea>
+
+
+        <!-- BUTTON -->
+
+        <button
+            class="check-btn"
+            onclick="checkSpam()"
+        >
+            🔍 Check Message
+        </button>
+
+
+        <!-- RESULT -->
+
+        <div
+            id="result"
+            class="result"
+        >
+
+            <h2 id="resultTitle"></h2>
+
+            <p id="resultText"></p>
+
+            <div class="confidence">
+
+                Confidence:
+                <strong id="confidence">
+                    0%
+                </strong>
+
+            </div>
+
+
+            <div class="bar-container">
+
+                <div
+                    id="bar"
+                    class="bar"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EXAMPLES -->
+
+        <div class="examples">
+
+            <p>
+                <strong>Try an example:</strong>
+            </p>
+
+
+            <span
+                class="example"
+                onclick="useExample('You win')"
+            >
+                🏆 You Win
+            </span>
+
+
+            <span
+                class="example"
+                onclick="useExample('Congratulations! You won ₹10,00,000. Click here to claim your prize now!')"
+            >
+                🎁 Prize Message
+            </span>
+
+
+            <span
+                class="example"
+                onclick="useExample('URGENT! You have won a lottery. Send your bank details to receive your money.')"
+            >
+                💰 Lottery Message
+            </span>
+
+            <span
+            class="example"
+            onclick="useExample('URGENT! You have won a lottery. Send your bank details to receive your money.')"
+        >
+            💰 another spam
+        </span>
+
+
+
+            <span
+                class="example"
+                onclick="useExample('Hi, are we meeting for lunch today?')"
+            >
+                💬 Normal Message
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+
+    <script>
+
+
+        function checkSpam() {
+
+
+            // Get message
+
+            const messageInput =
+                document.getElementById("message");
+
+            const message =
+                messageInput.value.trim();
+
+
+            // Get result elements
+
+            const result =
+                document.getElementById("result");
+
+            const resultTitle =
+                document.getElementById("resultTitle");
+
+            const resultText =
+                document.getElementById("resultText");
+
+            const confidence =
+                document.getElementById("confidence");
+
+            const bar =
+                document.getElementById("bar");
+
+
+            // Check empty message
+
+            if (message === "") {
+
+                alert("Please enter a message.");
+
+                messageInput.focus();
+
+                return;
+            }
+
+
+            // Convert to lowercase
+
+            const lowerMessage =
+                message.toLowerCase();
+
+
+            /*
+                STRONG SPAM WORDS
+
+                These words have higher weight.
+            */
+
+            const strongSpamWords = [
+
+                "win",
+                "winner",
+                "won",
+                "prize",
+                "lottery",
+                "jackpot",
+                "free",
+                "cash",
+                "reward",
+                "claim",
+                "bonus",
+                "million",
+                "billion",
+                "atiq"
+
+            ];
+
+
+            /*
+                NORMAL SPAM WORDS
+            */
+
+            const spamWords = [
+
+                "urgent",
+                "offer",
+                "congratulations",
+                "click here",
+                "limited time",
+                "bank details",
+                "credit card",
+                "otp",
+                "loan",
+                "investment",
+                "money",
+                "selected"
+
+            ];
+
+
+            let score = 0;
+
+            let detectedWords = [];
+
+
+            /*
+                Check strong spam words
+
+                IMPORTANT:
+                Word boundary is used here.
+
+                Example:
+
+                "win"       → detected
+                "you win"   → detected
+                "winner"    → detected separately
+                "window"    → NOT detected as "win"
+            */
+
+            strongSpamWords.forEach(function(word) {
+
+                const pattern =
+                    new RegExp(
+                        "\\b" +
+                        word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") +
+                        "\\b",
+                        "i"
+                    );
+
+
+                if (pattern.test(lowerMessage)) {
+
+                    score += 2;
+
+                    detectedWords.push(word);
+
+                }
+
+            });
+
+
+            /*
+                Check normal spam words
+            */
+
+            spamWords.forEach(function(word) {
+
+                if (lowerMessage.includes(word)) {
+
+                    score += 1;
+
+                    detectedWords.push(word);
+
+                }
+
+            });
+
+
+            /*
+                Check URL
+            */
+
+            if (
+                lowerMessage.includes("http://") ||
+                lowerMessage.includes("https://") ||
+                lowerMessage.includes("www.")
+            ) {
+
+                score += 2;
+
+                detectedWords.push("link");
+
+            }
+
+
+            /*
+                Check multiple !
+            */
+
+            const exclamationCount =
+                (message.match(/!/g) || []).length;
+
+
+            if (exclamationCount >= 2) {
+
+                score += 1;
+
+                detectedWords.push("multiple !");
+
+            }
+
+
+            /*
+                CALCULATE RESULT
+            */
+
+
+            if (score >= 2) {
+
+
+                // Calculate spam confidence
+
+                let spamPercentage =
+                    50 + (score * 10);
+
+
+                if (spamPercentage > 98) {
+
+                    spamPercentage = 98;
+
+                }
+
+
+                // Show SPAM
+
+                result.className =
+                    "result spam";
+
+
+                resultTitle.innerHTML =
+                    "⚠️ SPAM MESSAGE";
+
+
+                resultText.innerHTML =
+                    "Spam indicators detected: " +
+                    detectedWords.join(", ");
+
+
+                confidence.innerHTML =
+                    spamPercentage + "%";
+
+
+                bar.className =
+                    "bar spam-bar";
+
+
+                // Reset animation
+
+                bar.style.width = "0%";
+
+
+                setTimeout(function() {
+
+                    bar.style.width =
+                        spamPercentage + "%";
+
+                }, 50);
+
+
+            }
+
+
+            else {
+
+
+                // NOT SPAM
+
+                let safePercentage = 95;
+
+
+                result.className =
+                    "result not-spam";
+
+
+                resultTitle.innerHTML =
+                    "✅ NOT SPAM";
+
+
+                resultText.innerHTML =
+                    "No strong spam indicators were detected.";
+
+
+                confidence.innerHTML =
+                    safePercentage + "%";
+
+
+                bar.className =
+                    "bar safe-bar";
+
+
+                // Reset animation
+
+                bar.style.width = "0%";
+
+
+                setTimeout(function() {
+
+                    bar.style.width =
+                        safePercentage + "%";
+
+                }, 50);
+
+            }
+
+        }
+
+
+
+        /*
+            EXAMPLE BUTTON
+
+            Put example text into textarea
+            and automatically check it.
+        */
+
+        function useExample(text) {
+
+            document.getElementById("message").value =
+                text;
+
+            checkSpam();
+
+        }
+
+
+    </script>
+
+
+</body>
+
+</html>
+```
